@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Web-Slinger Summarizer</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 0, 102, 0.18), transparent 25%),
+                radial-gradient(circle at 85% 80%, rgba(255, 0, 0, 0.18), transparent 25%),
+                #090909;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Comic-style background pattern */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.08;
+
+            background-image:
+                linear-gradient(30deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%),
+                linear-gradient(150deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%);
+
+            background-size: 40px 70px;
+            z-index: -1;
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            padding: 25px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            border-bottom: 2px solid #ff0055;
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        .logo {
+            font-family: 'Bangers', cursive;
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow:
+                3px 3px 0 #ff0055,
+                5px 5px 0 #e50914;
+        }
+
+        .badge {
+            background: #ffffff;
+            color: #090909;
+            padding: 7px 15px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transform: skew(-8deg);
+        }
+
+        /* Main */
+        main {
+            max-width: 1100px;
+            margin: auto;
+            padding: 70px 25px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .hero h1 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(55px, 8vw, 100px);
+            letter-spacing: 4px;
+            line-height: 0.95;
+
+            color: #ffffff;
+
+            text-shadow:
+                5px 5px 0 #ff0055,
+                10px 10px 0 #e50914;
+        }
+
+        .hero p {
+            margin-top: 22px;
+            color: #cfcfcf;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main card */
+        .summarizer-card {
+            position: relative;
+
+            background: #ffffff;
+            color: #111111;
+
+            padding: 35px;
+            border: 4px solid #000000;
+
+            box-shadow:
+                10px 10px 0 #ff0055,
+                18px 18px 0 #e50914;
+
+            transform: rotate(-0.3deg);
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .card-title h2 {
+            font-family: 'Bangers', cursive;
+            font-size: 32px;
+            letter-spacing: 1px;
+        }
+
+        .spider-dot {
+            width: 15px;
+            height: 15px;
+            background: #ff0055;
+            border-radius: 50%;
+            box-shadow:
+                20px 0 #e50914,
+                40px 0 #000000;
+        }
+
+        /* Textarea */
+        textarea {
+            width: 100%;
+            min-height: 260px;
+
+            resize: vertical;
+
+            padding: 20px;
+
+            border: 3px solid #111111;
+            background: #f5f5f5;
+
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #ff0055;
+            box-shadow: 5px 5px 0 #e50914;
+            background: #ffffff;
+        }
+
+        textarea::placeholder {
+            color: #777777;
+        }
+
+        /* Button */
+        .summarize-btn {
+            margin-top: 20px;
+
+            width: 100%;
+            padding: 17px;
+
+            border: 3px solid #000000;
+
+            background: #e50914;
+            color: #ffffff;
+
+            font-family: 'Bangers', cursive;
+            font-size: 25px;
+            letter-spacing: 2px;
+
+            cursor: pointer;
+
+            box-shadow: 6px 6px 0 #000000;
+
+            transition: all 0.15s ease;
+        }
+
+        .summarize-btn:hover {
+            background: #ff0055;
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0 #000000;
+        }
+
+        .summarize-btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: none;
+        }
+
+        /* Summary */
+        .summary-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .summary-section.active {
+            display: block;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .summary-header h2 {
+            font-family: 'Bangers', cursive;
+            font-size: 32px;
+            letter-spacing: 1px;
+        }
+
+        .summary-box {
+            background: #111111;
+            color: #ffffff;
+
+            padding: 25px;
+
+            border: 3px solid #ffffff;
+
+            box-shadow:
+                7px 7px 0 #ff0055,
+                13px 13px 0 #e50914;
+
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+
+            font-family: 'Bangers', cursive;
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: #ff0055;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 35px 20px;
+            color: #777777;
+            font-size: 12px;
+        }
+
+        footer span {
+            color: #ff0055;
+            font-weight: 700;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+
+            header {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 25px;
+            }
+
+            main {
+                padding: 50px 18px;
+            }
+
+            .hero h1 {
+                font-size: 60px;
+            }
+
+            .summarizer-card {
+                padding: 22px;
+
+                box-shadow:
+                    7px 7px 0 #ff0055,
+                    12px 12px 0 #e50914;
+            }
+
+            textarea {
+                min-height: 220px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">WEB // SUMMARIZER</div>
+
+        <div class="badge">
+            AI POWERED
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="hero">
+            <h1>SUMMARIZE<br>LIKE A HERO</h1>
+
+            <p>
+                Turn long conversations into powerful, concise summaries.
+            </p>
+        </section>
+
+
+        <section class="summarizer-card">
+
+            <div class="card-title">
+                <h2>ENTER YOUR TEXT</h2>
+
+                <div class="spider-dot"></div>
+            </div>
+
+
+            <textarea
+                id="dialogue"
+                placeholder="Paste your dialogue or text here..."
+            ></textarea>
+
+
+            <button
+                class="summarize-btn"
+                onclick="summarizeText()"
+            >
+                ⚡ GENERATE SUMMARY
+            </button>
+
+
+            <div class="loading" id="loading">
+                SPINNING THE WEB... GENERATING SUMMARY
+            </div>
+
+
+            <div class="summary-section" id="summarySection">
+
+                <div class="summary-header">
+                    <h2>YOUR SUMMARY</h2>
+                </div>
+
+                <div
+                    class="summary-box"
+                    id="summary"
+                ></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        Built with <span>FastAPI</span> + <span>T5</span> + AI
+    </footer>
+
+
+    <script>
+
+        async function summarizeText() {
+
+            const dialogue =
+                document.getElementById("dialogue").value;
+
+            const summarySection =
+                document.getElementById("summarySection");
+
+            const summary =
+                document.getElementById("summary");
+
+            const loading =
+                document.getElementById("loading");
+
+
+            if (!dialogue.trim()) {
+
+                alert("Please enter some text first!");
+
+                return;
+            }
+
+
+            loading.classList.add("active");
+
+            summarySection.classList.remove("active");
+
+
+            try {
+
+                const response = await fetch("/summarize/", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        dialogue: dialogue
+                    })
+
+                });
+
+
+                const data = await response.json();
+
+
+                summary.innerText = data.summary;
+
+                summarySection.classList.add("active");
+
+            }
+
+            catch (error) {
+
+                summary.innerText =
+                    "Something went wrong. Please try again.";
+
+                summarySection.classList.add("active");
+
+            }
+
+            finally {
+
+                loading.classList.remove("active");
+
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>
