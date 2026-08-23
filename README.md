@@ -2,6 +2,17 @@
 
 A minor project that uses a fine-tuned **T5 transformer model** to generate concise summaries from longer text or dialogues.
 
+## Demo
+
+### Application Interface
+
+![Text Summarizer Interface](SCREENSHOT/app-interface.png)
+
+### Summarization Result
+
+![Text Summarization Result](SCREENSHOT/summarization-result.png)
+
+
 ## Project Overview
 
 This project demonstrates how a transformer-based NLP model can be trained and integrated into a simple web application.
